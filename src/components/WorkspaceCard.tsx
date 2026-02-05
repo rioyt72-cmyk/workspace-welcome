@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Heart, ChevronLeft, ChevronRight, Clock, Train, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
@@ -20,6 +21,7 @@ interface Workspace {
   gallery_images?: string[] | null;
   timings?: { weekdays: string; saturday: string; sunday: string } | null;
   nearby?: { metro?: { name: string; distance: string }[] } | null;
+  coming_soon?: boolean;
 }
 
 interface WorkspaceCardProps {
@@ -143,6 +145,13 @@ export const WorkspaceCard = ({ workspace, onViewDetails, onBook, isSaved, onTog
           />
         </AnimatePresence>
 
+        {/* Coming Soon Badge */}
+        {workspace.coming_soon && (
+          <Badge className="absolute top-3 left-3 bg-amber-500 text-white hover:bg-amber-600">
+            Coming Soon
+          </Badge>
+        )}
+
         {/* Navigation Arrows */}
         {allImages.length > 1 && (
           <>
@@ -250,16 +259,22 @@ export const WorkspaceCard = ({ workspace, onViewDetails, onBook, isSaved, onTog
         {/* Price and CTA */}
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-xs text-muted-foreground">Starting From</p>
-            {priceLoading ? (
-              <p className="text-lg font-bold text-muted-foreground">Loading...</p>
-            ) : minPrice !== null ? (
-              <p className="text-lg font-bold text-foreground">
-                ₹{minPrice.toLocaleString()}
-                <span className="text-sm font-normal text-muted-foreground">/{priceUnit}</span>
-              </p>
+            {workspace.coming_soon ? (
+              <p className="text-lg font-bold text-amber-500">Coming Soon</p>
             ) : (
-              <p className="text-lg font-bold text-muted-foreground">Contact for price</p>
+              <>
+                <p className="text-xs text-muted-foreground">Starting From</p>
+                {priceLoading ? (
+                  <p className="text-lg font-bold text-muted-foreground">Loading...</p>
+                ) : minPrice !== null ? (
+                  <p className="text-lg font-bold text-foreground">
+                    ₹{minPrice.toLocaleString()}
+                    <span className="text-sm font-normal text-muted-foreground">/{priceUnit}</span>
+                  </p>
+                ) : (
+                  <p className="text-lg font-bold text-muted-foreground">Contact for price</p>
+                )}
+              </>
             )}
           </div>
           <Button 

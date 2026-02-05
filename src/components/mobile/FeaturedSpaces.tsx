@@ -3,6 +3,7 @@ import { MapPin, Check } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 
 interface Workspace {
   id: string;
@@ -10,6 +11,7 @@ interface Workspace {
   location: string;
   image_url: string | null;
   facilities: string[];
+  coming_soon?: boolean;
 }
 
 interface FeaturedSpacesProps {
@@ -26,11 +28,11 @@ export const FeaturedSpaces = ({ onViewDetails }: FeaturedSpacesProps) => {
     const fetchWorkspaces = async () => {
       const { data } = await supabase
         .from("workspaces")
-        .select("id, name, location, image_url, facilities")
+        .select("id, name, location, image_url, facilities, coming_soon")
         .eq("is_active", true)
         .limit(5);
 
-      if (data) setWorkspaces(data);
+      if (data) setWorkspaces(data as unknown as Workspace[]);
     };
     fetchWorkspaces();
   }, []);
@@ -74,6 +76,15 @@ export const FeaturedSpaces = ({ onViewDetails }: FeaturedSpacesProps) => {
               className="flex-shrink-0 w-72 bg-card rounded-2xl overflow-hidden shadow-card cursor-pointer border border-border/50 flex flex-col"
             >
               <div className="p-5 space-y-4 flex-1 flex flex-col">
+                {/* Coming Soon Badge */}
+                {workspace.coming_soon && (
+                  <div className="flex justify-center">
+                    <Badge className="bg-amber-500 text-white hover:bg-amber-600">
+                      Coming Soon
+                    </Badge>
+                  </div>
+                )}
+                
                 {/* Title */}
                 <h3 className="text-lg font-bold text-foreground text-center">{workspace.name}</h3>
 
