@@ -195,9 +195,9 @@ export const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md p-6 sm:p-8">
         <DialogHeader>
-          <DialogTitle className="text-center text-2xl font-bold">
+          <DialogTitle className="text-center text-xl sm:text-2xl font-bold">
             {step === "choice" && "Welcome to Aztech"}
             {step === "login" && "Login to Your Account"}
             {step === "signup" && "Create Your Account"}

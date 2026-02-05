@@ -256,7 +256,7 @@ export const BookingModal = ({ workspace, open, onOpenChange, onSuccess, onLogin
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-md p-5 sm:p-6">
         <DialogHeader>
           <DialogTitle>Book Workspace</DialogTitle>
           <DialogDescription>{workspace.name}</DialogDescription>
