@@ -30,13 +30,12 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
-import { BookingModal } from "@/components/BookingModal";
+import { ServiceBookingModal } from "@/components/ServiceBookingModal";
 import { EnquiryModal } from "@/components/EnquiryModal";
 import { SharePopover } from "@/components/SharePopover";
 import { useAuth } from "@/contexts/AuthContext";
 import { AuthModal } from "@/components/AuthModal";
 import { toast } from "sonner";
-import { useWorkspaceRemainingSeats } from "@/hooks/use-remaining-seats";
 import { useRazorpay } from "@/hooks/use-razorpay";
 
 interface NearbyItem {
@@ -113,14 +112,13 @@ export default function WorkspaceDetail() {
   const [similarWorkspaces, setSimilarWorkspaces] = useState<SimilarWorkspace[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
+  const [isServiceBookingModalOpen, setIsServiceBookingModalOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [selectedServiceOption, setSelectedServiceOption] = useState<ServiceOption | null>(null);
   const [nearbyTab, setNearbyTab] = useState("metro");
   const [isEnquiryModalOpen, setIsEnquiryModalOpen] = useState(false);
   const [enquiryServiceName, setEnquiryServiceName] = useState("");
 
-  const { remainingSeats } = useWorkspaceRemainingSeats(workspace?.id, workspace?.capacity || 0);
   const { initiatePayment, isLoading: isPaymentLoading } = useRazorpay();
 
   useEffect(() => {
@@ -188,33 +186,44 @@ export default function WorkspaceDetail() {
     setLoading(false);
   };
 
-  const handleBookService = async (option: ServiceOption) => {
+  const handleOpenBookingModal = (option: ServiceOption) => {
     if (!user) {
       setIsAuthModalOpen(true);
       return;
     }
-    
+    setSelectedServiceOption(option);
+    setIsServiceBookingModalOpen(true);
+  };
+
+  const handleProceedToPayment = async (
+    option: ServiceOption,
+    startDate: Date,
+    endDate: Date,
+    totalAmount: number
+  ) => {
+    if (!user) {
+      setIsAuthModalOpen(true);
+      return;
+    }
+
+    setIsServiceBookingModalOpen(false);
+
     // Initiate Razorpay payment
     initiatePayment({
-      amount: option.price,
+      amount: totalAmount,
       serviceName: option.name,
       workspaceName: workspace?.name || "",
       workspaceId: workspace?.id || "",
       userEmail: user.email || "",
       onSuccess: async (paymentId, orderId) => {
         console.log("Payment completed:", { paymentId, orderId });
-        
-        // Create booking record after successful payment
-        const startDate = new Date();
-        const endDate = new Date();
-        endDate.setMonth(endDate.getMonth() + 1);
-        
+
         const { error } = await supabase.from("bookings").insert({
           user_id: user.id,
           workspace_id: workspace?.id,
           start_date: startDate.toISOString().split('T')[0],
           end_date: endDate.toISOString().split('T')[0],
-          total_amount: option.price,
+          total_amount: totalAmount,
           status: "confirmed",
           seats_booked: 1,
           notes: `Service: ${option.name} | Payment: ${paymentId}`,
@@ -233,49 +242,26 @@ export default function WorkspaceDetail() {
     });
   };
 
-  const handleBookWorkspace = async () => {
+  const handleBookWorkspace = () => {
     if (!user) {
       setIsAuthModalOpen(true);
       return;
     }
     
-    // Initiate Razorpay payment for workspace
-    initiatePayment({
-      amount: workspace?.amount_per_month || 0,
-      serviceName: workspace?.workspace_type.replace(/_/g, ' ') || "Workspace",
-      workspaceName: workspace?.name || "",
-      workspaceId: workspace?.id || "",
-      userEmail: user.email || "",
-      onSuccess: async (paymentId, orderId) => {
-        console.log("Payment completed:", { paymentId, orderId });
-        
-        // Create booking record after successful payment
-        const startDate = new Date();
-        const endDate = new Date();
-        endDate.setMonth(endDate.getMonth() + 1);
-        
-        const { error } = await supabase.from("bookings").insert({
-          user_id: user.id,
-          workspace_id: workspace?.id,
-          start_date: startDate.toISOString().split('T')[0],
-          end_date: endDate.toISOString().split('T')[0],
-          total_amount: workspace?.amount_per_month || 0,
-          status: "confirmed",
-          seats_booked: 1,
-          notes: `Payment: ${paymentId}`,
-        });
-
-        if (error) {
-          console.error("Booking creation error:", error);
-          toast.error("Payment successful but booking record failed. Please contact support.");
-        } else {
-          toast.success(`Booking confirmed for ${workspace?.name}!`);
-        }
-      },
-      onFailure: (error) => {
-        console.error("Payment failed:", error);
-      },
-    });
+    // Create a service option for the main workspace
+    const workspaceServiceOption: ServiceOption = {
+      id: workspace?.id || "",
+      name: workspace?.workspace_type.replace(/_/g, ' ') || "Workspace",
+      description: null,
+      price: workspace?.amount_per_month || 0,
+      price_unit: "month",
+      capacity: null,
+      action_label: "Book Now",
+      icon: "building",
+    };
+    
+    setSelectedServiceOption(workspaceServiceOption);
+    setIsServiceBookingModalOpen(true);
   };
 
   const handleEnquiry = (serviceName?: string) => {
@@ -474,17 +460,11 @@ export default function WorkspaceDetail() {
                               <span className="font-semibold">{option.price.toLocaleString()}</span>
                               <span className="text-sm text-muted-foreground">/ {option.price_unit}</span>
                             </div>
-                            <Button 
-                              className="mt-3 bg-primary hover:bg-primary/90"
-                              onClick={() => handleBookService(option)}
-                              disabled={isPaymentLoading}
-                            >
-                              {isPaymentLoading ? "Processing..." : "Book Now"}
-                            </Button>
                           </div>
                         </div>
                       </CardContent>
-                    </Card>))}
+                    </Card>
+                  ))}
                 </div>
               </section>
             )}
@@ -649,18 +629,12 @@ export default function WorkspaceDetail() {
                             <p className="text-xs text-muted-foreground">
                               From ₹ {option.price.toLocaleString()} / {option.price_unit}
                             </p>
-                            {option.capacity && (
-                              <p className="text-xs text-muted-foreground flex items-center gap-1">
-                                <Users className="w-3 h-3" />
-                                Available: <span className="font-medium text-primary">{remainingSeats}</span> / {option.capacity}
-                              </p>
-                            )}
                           </div>
                         </div>
                         <Button 
                           variant="link" 
                           className="text-primary text-sm p-0 h-auto"
-                          onClick={() => handleBookService(option)}
+                          onClick={() => handleOpenBookingModal(option)}
                           disabled={isPaymentLoading}
                         >
                           {isPaymentLoading ? "Processing..." : option.action_label}
@@ -720,21 +694,15 @@ export default function WorkspaceDetail() {
       <Footer />
 
       {/* Modals */}
-      {workspace && (
-        <BookingModal
-          open={isBookingModalOpen}
-          onOpenChange={setIsBookingModalOpen}
-          workspace={{
-            id: workspace.id,
-            name: workspace.name,
-            amount_per_month: workspace.amount_per_month,
-            workspace_type: workspace.workspace_type,
-            capacity: workspace.capacity || 0,
-          }}
-          onSuccess={() => {}}
-          onLoginRequired={() => setIsAuthModalOpen(true)}
-        />
-      )}
+      <ServiceBookingModal
+        open={isServiceBookingModalOpen}
+        onOpenChange={setIsServiceBookingModalOpen}
+        serviceOption={selectedServiceOption}
+        workspaceName={workspace?.name || ""}
+        onProceedToPayment={handleProceedToPayment}
+        onLoginRequired={() => setIsAuthModalOpen(true)}
+        isPaymentLoading={isPaymentLoading}
+      />
 
       <AuthModal 
         isOpen={isAuthModalOpen} 
