@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { MobileHeader } from "@/components/mobile/MobileHeader";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -37,6 +38,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { AuthModal } from "@/components/AuthModal";
 import { toast } from "sonner";
 import { useRazorpay } from "@/hooks/use-razorpay";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface NearbyItem {
   name: string;
@@ -106,6 +108,7 @@ export default function WorkspaceDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const isMobile = useIsMobile();
   
   const [workspace, setWorkspace] = useState<WorkspaceData | null>(null);
   const [serviceOptions, setServiceOptions] = useState<ServiceOption[]>([]);
@@ -287,7 +290,7 @@ export default function WorkspaceDetail() {
   if (loading) {
     return (
       <div className="min-h-screen bg-background">
-        <Header />
+        {isMobile ? <MobileHeader /> : <Header />}
         <div className="container mx-auto px-4 pt-24 pb-8">
           <Skeleton className="h-8 w-48 mb-4" />
           <Skeleton className="h-96 w-full rounded-xl" />
@@ -303,7 +306,7 @@ export default function WorkspaceDetail() {
 
   return (
     <div className="min-h-screen bg-background overflow-x-hidden">
-      <Header />
+      {isMobile ? <MobileHeader /> : <Header />}
       
       {/* Breadcrumb */}
       <div className="container mx-auto px-4 pt-20 pb-4 overflow-hidden">
@@ -610,8 +613,8 @@ export default function WorkspaceDetail() {
             )}
           </div>
 
-          {/* Right Column - Sticky Sidebar */}
-          <div className="lg:col-span-1">
+          {/* Right Column - Sticky Sidebar (Desktop) */}
+          <div className="hidden lg:block lg:col-span-1">
             <div className="sticky top-24 space-y-4">
               {/* Service Options Sidebar */}
               {serviceOptions.length > 0 ? (
@@ -688,6 +691,83 @@ export default function WorkspaceDetail() {
               </Button>
             </div>
           </div>
+        </div>
+
+        {/* Mobile Booking Section - Always visible on mobile */}
+        <div className="lg:hidden mt-8 space-y-4">
+          {/* Service Options for Mobile */}
+          {serviceOptions.length > 0 ? (
+            <Card>
+              <CardContent className="p-4 space-y-4">
+                {serviceOptions.map((option) => (
+                  <div 
+                    key={option.id} 
+                    className="flex items-center justify-between py-3 border-b last:border-b-0"
+                  >
+                    <div className="flex items-center gap-3">
+                      <Building2 className="w-8 h-8 text-primary" />
+                      <div>
+                        <p className="font-medium text-sm">{option.name}</p>
+                        <p className="text-xs text-muted-foreground">
+                          From ₹ {option.price.toLocaleString()} / {option.price_unit}
+                        </p>
+                      </div>
+                    </div>
+                    <Button 
+                      variant="link" 
+                      className="text-primary text-sm p-0 h-auto"
+                      onClick={() => handleOpenBookingModal(option)}
+                      disabled={isPaymentLoading}
+                    >
+                      {isPaymentLoading ? "Processing..." : option.action_label}
+                    </Button>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          ) : (
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-medium">{workspace.workspace_type.replace(/_/g, ' ')}</p>
+                    <p className="text-sm text-muted-foreground">
+                      From ₹ {workspace.amount_per_month.toLocaleString()} / month
+                    </p>
+                  </div>
+                  <Button 
+                    onClick={() => {
+                      handleBookWorkspace();
+                    }}
+                    disabled={isPaymentLoading}
+                  >
+                    {isPaymentLoading ? "Processing..." : "Book Now"}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Enquiry Card for Mobile */}
+          <Card>
+            <CardContent className="p-4">
+              <p className="font-medium mb-1">Want to know more?</p>
+              <p className="text-sm text-muted-foreground mb-3">Leave your enquiry with us.</p>
+              <Button 
+                variant="link" 
+                className="text-primary p-0 h-auto"
+                onClick={() => handleEnquiry()}
+              >
+                Enquire Now
+              </Button>
+            </CardContent>
+          </Card>
+
+          {/* Callback Button for Mobile */}
+          <Button className="w-full bg-primary hover:bg-primary/90" size="lg">
+            <Phone className="w-4 h-4 mr-2" />
+            Want a Call Back?
+          </Button>
         </div>
       </div>
 
