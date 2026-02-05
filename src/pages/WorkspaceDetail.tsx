@@ -216,9 +216,8 @@ export default function WorkspaceDetail() {
           end_date: endDate.toISOString().split('T')[0],
           total_amount: option.price,
           status: "confirmed",
-          payment_id: paymentId,
           seats_booked: 1,
-          notes: `Service: ${option.name}`,
+          notes: `Service: ${option.name} | Payment: ${paymentId}`,
         });
 
         if (error) {
@@ -262,8 +261,8 @@ export default function WorkspaceDetail() {
           end_date: endDate.toISOString().split('T')[0],
           total_amount: workspace?.amount_per_month || 0,
           status: "confirmed",
-          payment_id: paymentId,
           seats_booked: 1,
+          notes: `Payment: ${paymentId}`,
         });
 
         if (error) {
