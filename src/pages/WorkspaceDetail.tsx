@@ -458,7 +458,6 @@ export default function WorkspaceDetail() {
                         </div>
                         <div className="grid md:grid-cols-2 gap-4">
                           <div>
-                            <p className="text-sm text-muted-foreground mb-2">Description</p>
                             {option.description && (
                               <div className="space-y-1">
                                 {option.description.split('\n').map((line, idx) => (
@@ -470,21 +469,19 @@ export default function WorkspaceDetail() {
                               </div>
                             )}
                           </div>
-                          <div>
-                            <p className="text-sm text-muted-foreground mb-2">Listings</p>
+                          <div className="flex flex-col justify-between">
                             <div className="flex items-center gap-1">
-                              {option.capacity && (
-                                <div className="flex items-center gap-2">
-                                  <Users className="w-4 h-4" />
-                                  <span className="text-sm">{option.capacity}</span>
-                                </div>
-                              )}
-                            </div>
-                            <div className="flex items-center gap-1 mt-2">
                               <IndianRupee className="w-4 h-4" />
                               <span className="font-semibold">{option.price.toLocaleString()}</span>
                               <span className="text-sm text-muted-foreground">/ {option.price_unit}</span>
                             </div>
+                            <Button 
+                              className="mt-3 bg-primary hover:bg-primary/90"
+                              onClick={() => handleBookService(option)}
+                              disabled={isPaymentLoading}
+                            >
+                              {isPaymentLoading ? "Processing..." : "Book Now"}
+                            </Button>
                           </div>
                         </div>
                       </CardContent>
@@ -493,27 +490,6 @@ export default function WorkspaceDetail() {
               </section>
             )}
 
-            {/* Available Seats */}
-            {workspace.capacity && (
-              <section>
-                <h2 className="text-lg md:text-xl font-bold mb-4">Available Seats</h2>
-                <Card className="border-l-4 border-l-primary">
-                  <CardContent className="p-4 md:p-6">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                        <Users className="w-6 h-6 text-primary" />
-                      </div>
-                      <div>
-                        <p className="text-2xl md:text-3xl font-bold text-primary">
-                          {remainingSeats} <span className="text-lg text-muted-foreground font-normal">/ {workspace.capacity}</span>
-                        </p>
-                        <p className="text-sm text-muted-foreground">seats available for booking</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </section>
-            )}
 
             {/* Timings */}
             {workspace.timings && (
