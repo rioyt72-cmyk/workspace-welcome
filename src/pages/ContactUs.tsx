@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { motion } from "framer-motion";
 import { Mail, Phone, MapPin, Clock, Send } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 const contactInfo = [
   {
@@ -71,9 +72,9 @@ const ContactUs = () => {
     <div className={`min-h-screen bg-background ${isMobile ? "pb-20" : ""}`}>
       {isMobile ? <MobileHeader /> : <Header />}
       
-      <main className={isMobile ? "pt-16" : ""}>
+      <main>
         {/* Hero Section */}
-        <section className="bg-gradient-to-br from-primary/10 to-background py-16 lg:py-20">
+        <section className={cn("bg-gradient-to-br from-primary/10 to-background py-16 lg:py-20", isMobile && "pt-24")}>
           <div className="container mx-auto px-4 lg:px-8">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
