@@ -5,6 +5,7 @@ import { MobileBottomNav } from "@/components/mobile/MobileBottomNav";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { motion } from "framer-motion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { cn } from "@/lib/utils";
 
 const TermsAndPolicy = () => {
   const isMobile = useIsMobile();
@@ -13,9 +14,9 @@ const TermsAndPolicy = () => {
     <div className={`min-h-screen bg-background ${isMobile ? "pb-20" : ""}`}>
       {isMobile ? <MobileHeader /> : <Header />}
       
-      <main className={isMobile ? "pt-16" : ""}>
+      <main>
         {/* Hero Section */}
-        <section className="bg-gradient-to-br from-primary/10 to-background py-12 lg:py-16">
+        <section className={cn("bg-gradient-to-br from-primary/10 to-background py-12 lg:py-16", isMobile && "pt-24")}>
           <div className="container mx-auto px-4 lg:px-8">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
