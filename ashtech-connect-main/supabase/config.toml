@@ -1,0 +1,19 @@
+project_id = "tvixtvhkavgkqlesqjcb"
+
+[functions.admin-bookings]
+verify_jwt = false
+
+[functions.admin-requirements]
+verify_jwt = false
+
+[functions.admin-enquiries]
+verify_jwt = false
+
+[functions.send-otp]
+verify_jwt = false
+
+[functions.verify-otp]
+verify_jwt = false
+
+[functions.reset-password]
+verify_jwt = false
