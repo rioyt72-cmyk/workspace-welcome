@@ -40,10 +40,10 @@ export const ServiceBookingModal = ({
   const [startDate, setStartDate] = useState<Date | undefined>();
   const [endDate, setEndDate] = useState<Date | undefined>();
 
-  // Reset form when modal opens or service changes
+  // Reset form when modal opens or service changes - default start date to today
   useEffect(() => {
     if (open && serviceOption) {
-      setStartDate(undefined);
+      setStartDate(new Date());
       setEndDate(undefined);
     }
   }, [open, serviceOption]);
