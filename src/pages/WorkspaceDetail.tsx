@@ -188,7 +188,7 @@ export default function WorkspaceDetail() {
     setLoading(false);
   };
 
-  const handleBookService = (option: ServiceOption) => {
+  const handleBookService = async (option: ServiceOption) => {
     if (!user) {
       setIsAuthModalOpen(true);
       return;
@@ -201,10 +201,32 @@ export default function WorkspaceDetail() {
       workspaceName: workspace?.name || "",
       workspaceId: workspace?.id || "",
       userEmail: user.email || "",
-      onSuccess: (paymentId, orderId) => {
+      onSuccess: async (paymentId, orderId) => {
         console.log("Payment completed:", { paymentId, orderId });
-        toast.success(`Booking confirmed for ${option.name}!`);
-        // Optionally refresh the page or update UI
+        
+        // Create booking record after successful payment
+        const startDate = new Date();
+        const endDate = new Date();
+        endDate.setMonth(endDate.getMonth() + 1);
+        
+        const { error } = await supabase.from("bookings").insert({
+          user_id: user.id,
+          workspace_id: workspace?.id,
+          start_date: startDate.toISOString().split('T')[0],
+          end_date: endDate.toISOString().split('T')[0],
+          total_amount: option.price,
+          status: "confirmed",
+          payment_id: paymentId,
+          seats_booked: 1,
+          notes: `Service: ${option.name}`,
+        });
+
+        if (error) {
+          console.error("Booking creation error:", error);
+          toast.error("Payment successful but booking record failed. Please contact support.");
+        } else {
+          toast.success(`Booking confirmed for ${option.name}!`);
+        }
       },
       onFailure: (error) => {
         console.error("Payment failed:", error);
@@ -212,7 +234,7 @@ export default function WorkspaceDetail() {
     });
   };
 
-  const handleBookWorkspace = () => {
+  const handleBookWorkspace = async () => {
     if (!user) {
       setIsAuthModalOpen(true);
       return;
@@ -225,9 +247,31 @@ export default function WorkspaceDetail() {
       workspaceName: workspace?.name || "",
       workspaceId: workspace?.id || "",
       userEmail: user.email || "",
-      onSuccess: (paymentId, orderId) => {
+      onSuccess: async (paymentId, orderId) => {
         console.log("Payment completed:", { paymentId, orderId });
-        toast.success(`Booking confirmed for ${workspace?.name}!`);
+        
+        // Create booking record after successful payment
+        const startDate = new Date();
+        const endDate = new Date();
+        endDate.setMonth(endDate.getMonth() + 1);
+        
+        const { error } = await supabase.from("bookings").insert({
+          user_id: user.id,
+          workspace_id: workspace?.id,
+          start_date: startDate.toISOString().split('T')[0],
+          end_date: endDate.toISOString().split('T')[0],
+          total_amount: workspace?.amount_per_month || 0,
+          status: "confirmed",
+          payment_id: paymentId,
+          seats_booked: 1,
+        });
+
+        if (error) {
+          console.error("Booking creation error:", error);
+          toast.error("Payment successful but booking record failed. Please contact support.");
+        } else {
+          toast.success(`Booking confirmed for ${workspace?.name}!`);
+        }
       },
       onFailure: (error) => {
         console.error("Payment failed:", error);
