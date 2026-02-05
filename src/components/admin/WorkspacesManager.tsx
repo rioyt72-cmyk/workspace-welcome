@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Pencil, Trash2, IndianRupee } from "lucide-react";
+import { Plus, Pencil, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { WorkspaceFormDialog } from "./WorkspaceFormDialog";
@@ -15,8 +15,6 @@ interface Workspace {
   location: string;
   address: string | null;
   facilities: string[];
-  amount_per_month: number;
-  capacity: number;
   image_url: string | null;
   workspace_type: string;
   is_active: boolean;
@@ -145,7 +143,6 @@ export const WorkspacesManager = () => {
                   <TableHead>Name</TableHead>
                   <TableHead>Location</TableHead>
                   <TableHead>Type</TableHead>
-                  <TableHead>Price</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
@@ -155,11 +152,13 @@ export const WorkspacesManager = () => {
                   <TableRow key={workspace.id}>
                     <TableCell className="font-medium">{workspace.name}</TableCell>
                     <TableCell>{workspace.location}</TableCell>
-                    <TableCell className="capitalize">{workspace.workspace_type.replace('_', ' ')}</TableCell>
-                    <TableCell>
-                      <div className="flex items-center">
-                        <IndianRupee className="w-3 h-3" />
-                        {workspace.amount_per_month.toLocaleString()}
+                    <TableCell className="capitalize max-w-[200px]">
+                      <div className="flex flex-wrap gap-1">
+                        {workspace.workspace_type.split(",").map((type, idx) => (
+                          <Badge key={idx} variant="secondary" className="text-xs">
+                            {type.trim().replace('_', ' ')}
+                          </Badge>
+                        ))}
                       </div>
                     </TableCell>
                     <TableCell>

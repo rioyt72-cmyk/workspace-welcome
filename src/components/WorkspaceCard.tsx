@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { MapPin, Heart, ChevronLeft, ChevronRight, Clock, Train, ArrowRight, Users } from "lucide-react";
+import { Heart, ChevronLeft, ChevronRight, Clock, Train, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
-import { useWorkspaceRemainingSeats } from "@/hooks/use-remaining-seats";
+import { useWorkspaceServiceOptionsPrice } from "@/hooks/use-service-options-price";
 
 interface Workspace {
   id: string;
@@ -15,8 +15,6 @@ interface Workspace {
   address?: string | null;
   landmark?: string | null;
   facilities: string[];
-  amount_per_month: number;
-  capacity: number;
   image_url: string | null;
   workspace_type: string;
   gallery_images?: string[] | null;
@@ -32,15 +30,13 @@ interface WorkspaceCardProps {
   onToggleSaved?: (workspaceId: string) => Promise<{ ok: boolean; saved?: boolean; reason?: string }> | void;
 }
 
-const DAILY_TYPES = ["meeting_room", "day_office"];
-
 export const WorkspaceCard = ({ workspace, onViewDetails, onBook, isSaved, onToggleSaved }: WorkspaceCardProps) => {
   const navigate = useNavigate();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const { user } = useAuth();
   const [isFavorited, setIsFavorited] = useState(Boolean(isSaved));
   const [isExpanded, setIsExpanded] = useState(false);
-  const { remainingSeats } = useWorkspaceRemainingSeats(workspace.id, workspace.capacity);
+  const { minPrice, priceUnit, loading: priceLoading } = useWorkspaceServiceOptionsPrice(workspace.id);
 
   // If parent controls saved state, keep in sync.
   useEffect(() => {
@@ -129,10 +125,6 @@ export const WorkspaceCard = ({ workspace, onViewDetails, onBook, isSaved, onTog
   const displayDescription = shouldTruncate && !isExpanded 
     ? description.substring(0, maxLength) + '...' 
     : description;
-
-  const priceDisplay = DAILY_TYPES.includes(workspace.workspace_type)
-    ? { amount: Math.round(workspace.amount_per_month / 30), unit: '/desk/day' }
-    : { amount: workspace.amount_per_month, unit: '/desk/month' };
 
   return (
     <div className="group bg-card rounded-2xl overflow-hidden shadow-card hover:shadow-card-hover transition-all duration-300">
@@ -232,17 +224,6 @@ export const WorkspaceCard = ({ workspace, onViewDetails, onBook, isSaved, onTog
 
         {/* Info Box */}
         <div className="bg-muted/50 rounded-xl p-4 mb-4 space-y-3">
-          {/* Available Seats */}
-          <div className="flex items-start gap-3">
-            <Users className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-            <div>
-              <p className="text-sm font-medium text-foreground">Available Seats</p>
-              <p className="text-sm font-semibold text-primary">
-                {remainingSeats} / {workspace.capacity} seats
-              </p>
-            </div>
-          </div>
-
           {/* Timing Info */}
           <div className="flex items-start gap-3">
             <Clock className="w-5 h-5 text-muted-foreground mt-0.5 flex-shrink-0" />
@@ -270,10 +251,16 @@ export const WorkspaceCard = ({ workspace, onViewDetails, onBook, isSaved, onTog
         <div className="flex items-center justify-between">
           <div>
             <p className="text-xs text-muted-foreground">Starting From</p>
-            <p className="text-lg font-bold text-foreground">
-              ₹{priceDisplay.amount.toLocaleString()}
-              <span className="text-sm font-normal text-muted-foreground">{priceDisplay.unit}</span>
-            </p>
+            {priceLoading ? (
+              <p className="text-lg font-bold text-muted-foreground">Loading...</p>
+            ) : minPrice !== null ? (
+              <p className="text-lg font-bold text-foreground">
+                ₹{minPrice.toLocaleString()}
+                <span className="text-sm font-normal text-muted-foreground">/{priceUnit}</span>
+              </p>
+            ) : (
+              <p className="text-lg font-bold text-muted-foreground">Contact for price</p>
+            )}
           </div>
           <Button 
             variant="outline" 

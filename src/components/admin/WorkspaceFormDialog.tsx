@@ -5,10 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, MapPin } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -19,8 +20,6 @@ interface Workspace {
   location: string;
   address: string | null;
   facilities: string[];
-  amount_per_month: number;
-  capacity: number;
   image_url: string | null;
   workspace_type: string;
   is_active: boolean;
@@ -92,15 +91,13 @@ export const WorkspaceFormDialog = ({ open, onOpenChange, workspace, locations, 
     location: "",
     address: "",
     facilities: "",
-    amount_per_month: "",
-    capacity: "1",
     image_url: "",
-    workspace_type: "coworking",
     latitude: "",
     longitude: "",
     landmark: "",
   });
 
+  const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
   const [galleryImages, setGalleryImages] = useState<string[]>([]);
   const [newGalleryImage, setNewGalleryImage] = useState("");
 
@@ -130,15 +127,14 @@ export const WorkspaceFormDialog = ({ open, onOpenChange, workspace, locations, 
         location: workspace.location,
         address: workspace.address || "",
         facilities: workspace.facilities.join(", "),
-        amount_per_month: workspace.amount_per_month.toString(),
-        capacity: workspace.capacity.toString(),
         image_url: workspace.image_url || "",
-        workspace_type: workspace.workspace_type,
         latitude: workspace.latitude?.toString() || "",
         longitude: workspace.longitude?.toString() || "",
         landmark: (workspace as any).landmark || "",
       });
 
+      // Parse workspace types (comma-separated)
+      setSelectedTypes(workspace.workspace_type ? workspace.workspace_type.split(",").map(t => t.trim()) : []);
       setGalleryImages((workspace as any).gallery_images || []);
 
       if (workspace.timings) {
@@ -160,14 +156,12 @@ export const WorkspaceFormDialog = ({ open, onOpenChange, workspace, locations, 
       location: "",
       address: "",
       facilities: "",
-      amount_per_month: "",
-      capacity: "1",
       image_url: "",
-      workspace_type: "coworking",
       latitude: "",
       longitude: "",
       landmark: "",
     });
+    setSelectedTypes([]);
     setGalleryImages([]);
     setNewGalleryImage("");
     setTimings({
@@ -220,9 +214,21 @@ export const WorkspaceFormDialog = ({ open, onOpenChange, workspace, locations, 
       ),
     }));
   };
+  const toggleType = (typeValue: string) => {
+    setSelectedTypes(prev => 
+      prev.includes(typeValue) 
+        ? prev.filter(t => t !== typeValue)
+        : [...prev, typeValue]
+    );
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (selectedTypes.length === 0) {
+      toast({ title: "Error", description: "Please select at least one workspace type", variant: "destructive" });
+      return;
+    }
 
     const workspaceData = {
       name: formData.name,
@@ -230,10 +236,10 @@ export const WorkspaceFormDialog = ({ open, onOpenChange, workspace, locations, 
       location: formData.location,
       address: formData.address || null,
       facilities: formData.facilities.split(",").map((f) => f.trim()).filter(Boolean),
-      amount_per_month: parseFloat(formData.amount_per_month),
-      capacity: parseInt(formData.capacity),
+      amount_per_month: 0,
+      capacity: 0,
       image_url: formData.image_url || null,
-      workspace_type: formData.workspace_type,
+      workspace_type: selectedTypes.join(", "),
       latitude: formData.latitude ? parseFloat(formData.latitude) : null,
       longitude: formData.longitude ? parseFloat(formData.longitude) : null,
       landmark: formData.landmark || null,
@@ -290,23 +296,30 @@ export const WorkspaceFormDialog = ({ open, onOpenChange, workspace, locations, 
                     required
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="workspace_type">Type *</Label>
-                  <Select
-                    value={formData.workspace_type}
-                    onValueChange={(v) => setFormData({ ...formData, workspace_type: v })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {workspaceTypes.map((type) => (
-                        <SelectItem key={type.value} value={type.value}>
+                <div className="space-y-2 col-span-2">
+                  <Label>Workspace Types * (select multiple)</Label>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3 p-3 border rounded-lg bg-muted/30">
+                    {workspaceTypes.map((type) => (
+                      <div key={type.value} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={`type-${type.value}`}
+                          checked={selectedTypes.includes(type.value)}
+                          onCheckedChange={() => toggleType(type.value)}
+                        />
+                        <label
+                          htmlFor={`type-${type.value}`}
+                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                        >
                           {type.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+                  {selectedTypes.length > 0 && (
+                    <p className="text-xs text-muted-foreground">
+                      Selected: {selectedTypes.map(t => workspaceTypes.find(wt => wt.value === t)?.label || t).join(", ")}
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -318,31 +331,6 @@ export const WorkspaceFormDialog = ({ open, onOpenChange, workspace, locations, 
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   rows={3}
                 />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="amount">Amount per Month (₹) *</Label>
-                  <Input
-                    id="amount"
-                    type="number"
-                    value={formData.amount_per_month}
-                    onChange={(e) => setFormData({ ...formData, amount_per_month: e.target.value })}
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="capacity">Available Seats *</Label>
-                  <Input
-                    id="capacity"
-                    type="number"
-                    min="1"
-                    value={formData.capacity}
-                    onChange={(e) => setFormData({ ...formData, capacity: e.target.value })}
-                    required
-                  />
-                  <p className="text-xs text-muted-foreground">Number of seats available for booking</p>
-                </div>
               </div>
 
               <div className="space-y-2">
