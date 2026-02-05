@@ -2,6 +2,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MapPin, Users, IndianRupee, Check } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface Workspace {
   id: string;
@@ -20,11 +21,18 @@ interface WorkspaceDetailsModalProps {
   workspace: Workspace | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onBook: (workspace: Workspace) => void;
+  onBook?: (workspace: Workspace) => void;
 }
 
 export const WorkspaceDetailsModal = ({ workspace, open, onOpenChange, onBook }: WorkspaceDetailsModalProps) => {
+  const navigate = useNavigate();
+
   if (!workspace) return null;
+
+  const handleViewDetails = () => {
+    onOpenChange(false);
+    navigate(`/workspace/${workspace.id}`);
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -94,9 +102,9 @@ export const WorkspaceDetailsModal = ({ workspace, open, onOpenChange, onBook }:
           <Button 
             className="w-full rounded-full bg-primary hover:bg-primary/90 text-primary-foreground py-6 text-lg font-semibold" 
             size="lg" 
-            onClick={() => onBook(workspace)}
+            onClick={handleViewDetails}
           >
-            Book This Workspace
+            View Details
           </Button>
         </div>
       </DialogContent>
