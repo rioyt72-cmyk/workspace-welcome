@@ -210,35 +210,36 @@ export const ServiceBookingModal = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
-        <DialogHeader>
-          <DialogTitle>Book {serviceOption.name}</DialogTitle>
-          <DialogDescription>{workspaceName}</DialogDescription>
+      <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto p-4 sm:p-6">
+        <DialogHeader className="pb-2">
+          <DialogTitle className="text-lg sm:text-xl">Book {serviceOption.name}</DialogTitle>
+          <DialogDescription className="text-xs sm:text-sm">{workspaceName}</DialogDescription>
         </DialogHeader>
 
         {!user ? (
-          <div className="text-center py-6">
-            <p className="text-muted-foreground mb-4">Please login to book this service</p>
-            <Button onClick={() => { onOpenChange(false); onLoginRequired(); }}>
+          <div className="text-center py-4">
+            <p className="text-muted-foreground mb-3 text-sm">Please login to book this service</p>
+            <Button size="sm" onClick={() => { onOpenChange(false); onLoginRequired(); }}>
               Login to Continue
             </Button>
           </div>
         ) : (
-          <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Start Date <span className="text-muted-foreground text-xs">(Optional)</span></Label>
+          <div className="space-y-3">
+            <div className="grid grid-cols-2 gap-2 sm:gap-4">
+              <div className="space-y-1">
+                <Label className="text-xs sm:text-sm">Start Date <span className="text-muted-foreground text-[10px] sm:text-xs">(Optional)</span></Label>
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
                       variant="outline"
+                      size="sm"
                       className={cn(
-                        "w-full justify-start text-left font-normal",
+                        "w-full justify-start text-left font-normal text-xs sm:text-sm h-9",
                         !startDate && "text-muted-foreground"
                       )}
                     >
-                      <Calendar className="mr-2 h-4 w-4" />
-                      {startDate ? format(startDate, "PPP") : "Pick a date"}
+                      <Calendar className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+                      {startDate ? format(startDate, "MMM d, yyyy") : "Pick a date"}
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="start">
@@ -248,24 +249,25 @@ export const ServiceBookingModal = ({
                       onSelect={setStartDate}
                       disabled={(date) => date < new Date()}
                       initialFocus
-                      className="p-3 pointer-events-auto"
+                      className="p-2 sm:p-3 pointer-events-auto"
                     />
                   </PopoverContent>
                 </Popover>
               </div>
-              <div className="space-y-2">
-                <Label>End Date <span className="text-muted-foreground text-xs">(Optional)</span></Label>
+              <div className="space-y-1">
+                <Label className="text-xs sm:text-sm">End Date <span className="text-muted-foreground text-[10px] sm:text-xs">(Optional)</span></Label>
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
                       variant="outline"
+                      size="sm"
                       className={cn(
-                        "w-full justify-start text-left font-normal",
+                        "w-full justify-start text-left font-normal text-xs sm:text-sm h-9",
                         !endDate && "text-muted-foreground"
                       )}
                     >
-                      <Calendar className="mr-2 h-4 w-4" />
-                      {endDate ? format(endDate, "PPP") : "Auto-calculated"}
+                      <Calendar className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+                      {endDate ? format(endDate, "MMM d, yyyy") : "Auto-calculated"}
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="start">
@@ -275,7 +277,7 @@ export const ServiceBookingModal = ({
                       onSelect={setEndDate}
                       disabled={(date) => date < (startDate || new Date())}
                       initialFocus
-                      className="p-3 pointer-events-auto"
+                      className="p-2 sm:p-3 pointer-events-auto"
                     />
                   </PopoverContent>
                 </Popover>
@@ -283,7 +285,7 @@ export const ServiceBookingModal = ({
             </div>
 
             {startDate && (
-              <div className="text-sm text-muted-foreground bg-muted/50 rounded-lg p-3">
+              <div className="text-xs sm:text-sm text-muted-foreground bg-muted/50 rounded-lg p-2 sm:p-3">
                 <p>
                   <span className="font-medium">Duration:</span> {getDurationLabel()}
                 </p>
@@ -294,16 +296,16 @@ export const ServiceBookingModal = ({
             )}
 
             {/* Coupon Code Section */}
-            <div className="space-y-2">
-              <Label className="flex items-center gap-2">
-                <Tag className="w-4 h-4" />
+            <div className="space-y-1.5">
+              <Label className="flex items-center gap-1.5 text-xs sm:text-sm">
+                <Tag className="w-3 h-3 sm:w-4 sm:h-4" />
                 Apply Coupon
               </Label>
               {appliedCoupon ? (
-                <div className="flex items-center justify-between bg-primary/10 border border-primary/30 rounded-lg p-3">
+                <div className="flex items-center justify-between bg-primary/10 border border-primary/30 rounded-lg p-2 sm:p-3">
                   <div>
-                    <p className="font-medium text-primary">{appliedCoupon.code}</p>
-                    <p className="text-xs text-primary/80">
+                    <p className="font-medium text-primary text-sm">{appliedCoupon.code}</p>
+                    <p className="text-[10px] sm:text-xs text-primary/80">
                       {appliedCoupon.discount_type === "percentage" 
                         ? `${appliedCoupon.discount_value}% off` 
                         : `₹${appliedCoupon.discount_value} off`}
@@ -313,9 +315,9 @@ export const ServiceBookingModal = ({
                     variant="ghost"
                     size="sm"
                     onClick={handleRemoveCoupon}
-                    className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                    className="text-destructive hover:text-destructive hover:bg-destructive/10 h-7 w-7 p-0"
                   >
-                    <X className="w-4 h-4" />
+                    <X className="w-3 h-3 sm:w-4 sm:h-4" />
                   </Button>
                 </div>
               ) : (
@@ -324,50 +326,52 @@ export const ServiceBookingModal = ({
                     placeholder="Enter coupon code"
                     value={couponCode}
                     onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
-                    className="flex-1"
+                    className="flex-1 h-9 text-sm"
                   />
                   <Button
                     variant="outline"
+                    size="sm"
                     onClick={handleApplyCoupon}
                     disabled={isApplyingCoupon || !couponCode.trim()}
+                    className="h-9"
                   >
-                    {isApplyingCoupon ? <Loader2 className="w-4 h-4 animate-spin" /> : "Apply"}
+                    {isApplyingCoupon ? <Loader2 className="w-3 h-3 animate-spin" /> : "Apply"}
                   </Button>
                 </div>
               )}
             </div>
 
             {/* Price Summary */}
-            <div className="bg-muted/50 rounded-lg p-4 space-y-2">
-              <div className="flex items-center justify-between text-sm">
+            <div className="bg-muted/50 rounded-lg p-3 space-y-1.5">
+              <div className="flex items-center justify-between text-xs sm:text-sm">
                 <span className="text-muted-foreground">Subtotal</span>
                 <div className="flex items-center">
-                  <IndianRupee className="w-4 h-4" />
+                  <IndianRupee className="w-3 h-3 sm:w-4 sm:h-4" />
                   {subtotal.toLocaleString()}
                 </div>
               </div>
               
               {appliedCoupon && discountAmount > 0 && (
-                <div className="flex items-center justify-between text-sm text-primary">
+                <div className="flex items-center justify-between text-xs sm:text-sm text-primary">
                   <span>Discount ({appliedCoupon.code})</span>
                   <div className="flex items-center">
-                    - <IndianRupee className="w-4 h-4" />
+                    - <IndianRupee className="w-3 h-3 sm:w-4 sm:h-4" />
                     {discountAmount.toLocaleString()}
                   </div>
                 </div>
               )}
               
-              <div className="border-t pt-2 mt-2">
+              <div className="border-t pt-1.5 mt-1.5">
                 <div className="flex items-center justify-between">
-                  <span className="font-medium">Total Amount</span>
-                  <div className="flex items-center text-xl font-bold text-primary">
-                    <IndianRupee className="w-5 h-5" />
+                  <span className="font-medium text-sm">Total Amount</span>
+                  <div className="flex items-center text-lg sm:text-xl font-bold text-primary">
+                    <IndianRupee className="w-4 h-4 sm:w-5 sm:h-5" />
                     {finalTotal.toLocaleString()}
                   </div>
                 </div>
               </div>
               
-              <p className="text-xs text-muted-foreground">
+              <p className="text-[10px] sm:text-xs text-muted-foreground">
                 ₹{serviceOption.price.toLocaleString()}/{serviceOption.price_unit}
                 {startDate && endDate && ` × ${getDurationLabel()}`}
               </p>
@@ -375,7 +379,7 @@ export const ServiceBookingModal = ({
 
             <Button 
               onClick={handleProceedToPayment} 
-              className="w-full" 
+              className="w-full h-10 sm:h-11 text-sm sm:text-base" 
               disabled={isPaymentLoading}
             >
               {isPaymentLoading ? "Processing..." : "Proceed to Checkout"}
