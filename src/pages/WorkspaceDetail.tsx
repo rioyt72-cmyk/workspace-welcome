@@ -426,9 +426,86 @@ export default function WorkspaceDetail() {
               </section>
             )}
 
-            {/* Service Options Sections */}
+            {/* Mobile Booking Section - After Amenities */}
+            <div className="lg:hidden space-y-4">
+              {/* Service Options for Mobile */}
+              {serviceOptions.length > 0 ? (
+                <Card>
+                  <CardContent className="p-4 space-y-4">
+                    {serviceOptions.map((option) => (
+                      <div 
+                        key={option.id} 
+                        className="flex items-center justify-between py-3 border-b last:border-b-0"
+                      >
+                        <div className="flex items-center gap-3">
+                          <Building2 className="w-8 h-8 text-primary" />
+                          <div>
+                            <p className="font-medium text-sm">{option.name}</p>
+                            <p className="text-xs text-muted-foreground">
+                              From ₹ {option.price.toLocaleString()} / {option.price_unit}
+                            </p>
+                          </div>
+                        </div>
+                        <Button 
+                          variant="link" 
+                          className="text-primary text-sm p-0 h-auto"
+                          onClick={() => handleOpenBookingModal(option)}
+                          disabled={isPaymentLoading}
+                        >
+                          {isPaymentLoading ? "Processing..." : option.action_label}
+                        </Button>
+                      </div>
+                    ))}
+                  </CardContent>
+                </Card>
+              ) : (
+                <Card>
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-medium">{workspace.workspace_type.replace(/_/g, ' ')}</p>
+                        <p className="text-sm text-muted-foreground">
+                          From ₹ {workspace.amount_per_month.toLocaleString()} / month
+                        </p>
+                      </div>
+                      <Button 
+                        onClick={() => {
+                          handleBookWorkspace();
+                        }}
+                        disabled={isPaymentLoading}
+                      >
+                        {isPaymentLoading ? "Processing..." : "Book Now"}
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Enquiry Card for Mobile */}
+              <Card>
+                <CardContent className="p-4">
+                  <p className="font-medium mb-1">Want to know more?</p>
+                  <p className="text-sm text-muted-foreground mb-3">Leave your enquiry with us.</p>
+                  <Button 
+                    variant="link" 
+                    className="text-primary p-0 h-auto"
+                    onClick={() => handleEnquiry()}
+                  >
+                    Enquire Now
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Callback Button for Mobile */}
+              <Button className="w-full bg-primary hover:bg-primary/90" size="lg">
+                <Phone className="w-4 h-4 mr-2" />
+                Want a Call Back?
+              </Button>
+            </div>
+
+            {/* Service Options Sections - Desktop only */}
             {serviceOptions.length > 0 && (
-              <section>
+              <section className="hidden lg:block">
                 <h2 className="text-xl font-bold mb-4">Coworking Space and Office Solutions</h2>
                 <div className="space-y-6">
                   {serviceOptions.map((option) => (
@@ -558,6 +635,49 @@ export default function WorkspaceDetail() {
                 ))}
               </Tabs>
             </section>
+
+            {/* Coworking Space and Office Solutions - Mobile only (after What's Nearby) */}
+            {serviceOptions.length > 0 && (
+              <section className="lg:hidden">
+                <h2 className="text-xl font-bold mb-4">Coworking Space and Office Solutions</h2>
+                <div className="space-y-6">
+                  {serviceOptions.map((option) => (
+                    <Card key={option.id} className="border-l-4 border-l-primary">
+                      <CardContent className="p-4">
+                        <div className="flex items-start justify-between gap-2">
+                          <h3 className="text-base font-semibold">{option.name}</h3>
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            className="border-primary text-primary hover:bg-primary hover:text-primary-foreground flex-shrink-0"
+                            onClick={() => handleEnquiry(option.name)}
+                          >
+                            Enquire Now
+                          </Button>
+                        </div>
+                        <div className="mt-3">
+                          {option.description && (
+                            <div className="space-y-1">
+                              {option.description.split('\n').map((line, idx) => (
+                                <div key={idx} className="flex items-start gap-2">
+                                  <Check className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
+                                  <span className="text-sm">{line}</span>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                          <div className="flex items-center gap-1 mt-3">
+                            <IndianRupee className="w-4 h-4" />
+                            <span className="font-semibold">{option.price.toLocaleString()}</span>
+                            <span className="text-sm text-muted-foreground">/ {option.price_unit}</span>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </section>
+            )}
 
             {/* About */}
             {workspace.about && (
@@ -693,82 +813,6 @@ export default function WorkspaceDetail() {
           </div>
         </div>
 
-        {/* Mobile Booking Section - Always visible on mobile */}
-        <div className="lg:hidden mt-8 space-y-4">
-          {/* Service Options for Mobile */}
-          {serviceOptions.length > 0 ? (
-            <Card>
-              <CardContent className="p-4 space-y-4">
-                {serviceOptions.map((option) => (
-                  <div 
-                    key={option.id} 
-                    className="flex items-center justify-between py-3 border-b last:border-b-0"
-                  >
-                    <div className="flex items-center gap-3">
-                      <Building2 className="w-8 h-8 text-primary" />
-                      <div>
-                        <p className="font-medium text-sm">{option.name}</p>
-                        <p className="text-xs text-muted-foreground">
-                          From ₹ {option.price.toLocaleString()} / {option.price_unit}
-                        </p>
-                      </div>
-                    </div>
-                    <Button 
-                      variant="link" 
-                      className="text-primary text-sm p-0 h-auto"
-                      onClick={() => handleOpenBookingModal(option)}
-                      disabled={isPaymentLoading}
-                    >
-                      {isPaymentLoading ? "Processing..." : option.action_label}
-                    </Button>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-          ) : (
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-medium">{workspace.workspace_type.replace(/_/g, ' ')}</p>
-                    <p className="text-sm text-muted-foreground">
-                      From ₹ {workspace.amount_per_month.toLocaleString()} / month
-                    </p>
-                  </div>
-                  <Button 
-                    onClick={() => {
-                      handleBookWorkspace();
-                    }}
-                    disabled={isPaymentLoading}
-                  >
-                    {isPaymentLoading ? "Processing..." : "Book Now"}
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Enquiry Card for Mobile */}
-          <Card>
-            <CardContent className="p-4">
-              <p className="font-medium mb-1">Want to know more?</p>
-              <p className="text-sm text-muted-foreground mb-3">Leave your enquiry with us.</p>
-              <Button 
-                variant="link" 
-                className="text-primary p-0 h-auto"
-                onClick={() => handleEnquiry()}
-              >
-                Enquire Now
-              </Button>
-            </CardContent>
-          </Card>
-
-          {/* Callback Button for Mobile */}
-          <Button className="w-full bg-primary hover:bg-primary/90" size="lg">
-            <Phone className="w-4 h-4 mr-2" />
-            Want a Call Back?
-          </Button>
-        </div>
       </div>
 
       <Footer />
