@@ -20,6 +20,7 @@ interface Workspace {
 }
 
 const workspaceTypes = [
+  { id: "all", label: "All Spaces" },
   { id: "coworking", label: "Coworking Space" },
   { id: "serviced_office", label: "Serviced Office" },
   { id: "private_office", label: "Private Office" },
@@ -37,7 +38,7 @@ export const WorkspacesNearYou = ({ onLoginRequired }: WorkspacesNearYouProps) =
   const navigate = useNavigate();
   const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedType, setSelectedType] = useState("coworking");
+  const [selectedType, setSelectedType] = useState("all");
   const [selectedWorkspace, setSelectedWorkspace] = useState<Workspace | null>(null);
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [bookingOpen, setBookingOpen] = useState(false);
@@ -62,9 +63,9 @@ export const WorkspacesNearYou = ({ onLoginRequired }: WorkspacesNearYouProps) =
     setLoading(false);
   };
 
-  const filteredWorkspaces = workspaces.filter(
-    (ws) => ws.workspace_type === selectedType
-  );
+  const filteredWorkspaces = selectedType === "all" 
+    ? workspaces 
+    : workspaces.filter((ws) => ws.workspace_type === selectedType);
 
   const checkScrollButtons = () => {
     if (scrollContainerRef.current) {
