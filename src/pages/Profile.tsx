@@ -8,11 +8,12 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, User, Save, Loader2, Calendar, Heart, MapPin, Clock } from "lucide-react";
+import { ArrowLeft, User, Save, Loader2, Calendar, Heart, MapPin, Clock, Eye } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { MobileBottomNav } from "@/components/mobile/MobileBottomNav";
 import { AuthModal } from "@/components/AuthModal";
 import { SavedWorkspacesContent } from "@/components/profile/SavedWorkspacesTab";
+import { BookingDetailsModal } from "@/components/BookingDetailsModal";
 import { format } from "date-fns";
 
 interface Booking {
@@ -40,6 +41,8 @@ const Profile = () => {
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [bookingsLoading, setBookingsLoading] = useState(false);
+  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
+  const [bookingDetailsOpen, setBookingDetailsOpen] = useState(false);
   const [profile, setProfile] = useState({
     name: "",
     email: "",
@@ -356,9 +359,23 @@ const Profile = () => {
                               {format(new Date(booking.start_date), "MMM d")} - {format(new Date(booking.end_date), "MMM d, yyyy")}
                             </span>
                           </div>
-                          <p className="text-sm font-medium mt-2">
-                            ₹{booking.total_amount.toLocaleString()}
-                          </p>
+                          <div className="flex items-center justify-between mt-3">
+                            <p className="text-sm font-medium">
+                              ₹{booking.total_amount.toLocaleString()}
+                            </p>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="text-primary border-primary hover:bg-primary hover:text-primary-foreground"
+                              onClick={() => {
+                                setSelectedBooking(booking);
+                                setBookingDetailsOpen(true);
+                              }}
+                            >
+                              <Eye className="w-4 h-4 mr-1" />
+                              View Details
+                            </Button>
+                          </div>
                         </div>
                       </div>
                     ))}
@@ -394,6 +411,11 @@ const Profile = () => {
 
       {isMobile && <MobileBottomNav onLoginRequired={() => setAuthModalOpen(true)} />}
       <AuthModal isOpen={authModalOpen} onClose={() => setAuthModalOpen(false)} />
+      <BookingDetailsModal
+        booking={selectedBooking}
+        open={bookingDetailsOpen}
+        onOpenChange={setBookingDetailsOpen}
+      />
     </div>
   );
 };
