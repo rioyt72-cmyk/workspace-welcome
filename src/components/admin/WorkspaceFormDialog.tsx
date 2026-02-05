@@ -95,6 +95,7 @@ export const WorkspaceFormDialog = ({ open, onOpenChange, workspace, locations, 
     latitude: "",
     longitude: "",
     landmark: "",
+    coming_soon: false,
   });
 
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
@@ -131,6 +132,7 @@ export const WorkspaceFormDialog = ({ open, onOpenChange, workspace, locations, 
         latitude: workspace.latitude?.toString() || "",
         longitude: workspace.longitude?.toString() || "",
         landmark: (workspace as any).landmark || "",
+        coming_soon: (workspace as any).coming_soon || false,
       });
 
       // Parse workspace types (comma-separated)
@@ -160,6 +162,7 @@ export const WorkspaceFormDialog = ({ open, onOpenChange, workspace, locations, 
       latitude: "",
       longitude: "",
       landmark: "",
+      coming_soon: false,
     });
     setSelectedTypes([]);
     setGalleryImages([]);
@@ -246,6 +249,7 @@ export const WorkspaceFormDialog = ({ open, onOpenChange, workspace, locations, 
       gallery_images: galleryImages,
       timings,
       nearby,
+      coming_soon: formData.coming_soon,
     };
 
     let error;
@@ -295,6 +299,19 @@ export const WorkspaceFormDialog = ({ open, onOpenChange, workspace, locations, 
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     required
                   />
+                </div>
+                <div className="flex items-center space-x-2 pt-6">
+                  <Checkbox
+                    id="coming_soon"
+                    checked={formData.coming_soon}
+                    onCheckedChange={(checked) => setFormData({ ...formData, coming_soon: Boolean(checked) })}
+                  />
+                  <label
+                    htmlFor="coming_soon"
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                  >
+                    Coming Soon (Disable booking)
+                  </label>
                 </div>
                 <div className="space-y-2 col-span-2">
                   <Label>Workspace Types * (select multiple)</Label>
