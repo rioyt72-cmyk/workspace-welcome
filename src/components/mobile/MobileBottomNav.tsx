@@ -1,4 +1,4 @@
-import { Home, Search, Calendar, Heart, User } from "lucide-react";
+import { Home, Calendar, Heart, User } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
@@ -6,7 +6,6 @@ import { toast } from "sonner";
 
 const navItems = [
   { icon: Home, label: "Home", path: "/", requiresAuth: false, action: "navigate" },
-  { icon: Search, label: "Search", path: "/", requiresAuth: false, action: "search" },
   { icon: Calendar, label: "Bookings", path: "/profile?tab=bookings", requiresAuth: true, action: "navigate" },
   { icon: Heart, label: "Saved", path: "/profile?tab=saved", requiresAuth: true, action: "navigate" },
   { icon: User, label: "Profile", path: "/profile", requiresAuth: false, action: "navigate" },
@@ -45,15 +44,6 @@ export const MobileBottomNav = ({ onLoginRequired }: MobileBottomNavProps) => {
     return true;
   };
 
-  const scrollToWorkspaces = () => {
-    const workspacesSection = document.getElementById("workspaces");
-    if (workspacesSection) {
-      workspacesSection.scrollIntoView({ behavior: "smooth" });
-    } else {
-      // If not on home page, navigate first then scroll
-      navigate("/?scroll=workspaces");
-    }
-  };
 
   const handleNavClick = (item: typeof navItems[0]) => {
     if (item.requiresAuth && !user) {
@@ -64,14 +54,6 @@ export const MobileBottomNav = ({ onLoginRequired }: MobileBottomNavProps) => {
       return;
     }
 
-    if (item.action === "search") {
-      if (location.pathname === "/") {
-        scrollToWorkspaces();
-      } else {
-        navigate("/?scroll=workspaces");
-      }
-      return;
-    }
 
     navigate(item.path);
   };

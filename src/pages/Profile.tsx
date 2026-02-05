@@ -8,13 +8,14 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, User, Save, Loader2, Calendar, Heart, MapPin, Clock, Eye } from "lucide-react";
+import { ArrowLeft, User, Save, Loader2, Calendar, Heart, MapPin, Clock, Eye, RefreshCw } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { MobileBottomNav } from "@/components/mobile/MobileBottomNav";
 import { AuthModal } from "@/components/AuthModal";
 import { SavedWorkspacesContent } from "@/components/profile/SavedWorkspacesTab";
 import { BookingDetailsModal } from "@/components/BookingDetailsModal";
-import { format } from "date-fns";
+import { format, parseISO, isAfter, isBefore, addDays } from "date-fns";
+import { cn } from "@/lib/utils";
 
 interface Booking {
   id: string;
@@ -187,6 +188,23 @@ const Profile = () => {
     }
   };
 
+  const isBookingEndingSoonOrEnded = (endDate: string) => {
+    const end = parseISO(endDate);
+    const today = new Date();
+    const threeDaysFromNow = addDays(today, 3);
+    // Ended or ending within 3 days
+    return isBefore(end, today) || (isAfter(end, today) && isBefore(end, threeDaysFromNow));
+  };
+
+  const handleRenewBooking = (booking: Booking) => {
+    // Navigate to the workspace page to create a new booking
+    navigate(`/?workspace=${encodeURIComponent(booking.workspace.name)}`);
+    toast({
+      title: "Renew Booking",
+      description: "Please select new dates to renew your booking.",
+    });
+  };
+
   if (!user) {
     return null;
   }
@@ -324,61 +342,86 @@ const Profile = () => {
                   </div>
                 ) : (
                   <div className="space-y-4">
-                    {bookings.map((booking) => (
-                      <div
-                        key={booking.id}
-                        className="flex gap-4 p-4 border rounded-lg hover:bg-muted/50 transition-colors"
-                      >
-                        <div className="w-20 h-20 bg-muted rounded-lg overflow-hidden flex-shrink-0">
-                          {booking.workspace.image_url ? (
-                            <img
-                              src={booking.workspace.image_url}
-                              alt={booking.workspace.name}
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center">
-                              <MapPin className="w-6 h-6 text-muted-foreground" />
-                            </div>
+                    {bookings.map((booking) => {
+                      const showRenew = isBookingEndingSoonOrEnded(booking.end_date) && booking.status.toLowerCase() !== "cancelled";
+                      return (
+                        <div
+                          key={booking.id}
+                          className={cn(
+                            "p-4 border rounded-xl hover:bg-muted/50 transition-colors",
+                            isMobile ? "space-y-3" : "flex gap-4"
                           )}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-start justify-between gap-2">
-                            <h4 className="font-semibold truncate">{booking.workspace.name}</h4>
-                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(booking.status)}`}>
-                              {booking.status}
-                            </span>
+                        >
+                          {/* Image */}
+                          <div className={cn(
+                            "bg-muted rounded-lg overflow-hidden flex-shrink-0",
+                            isMobile ? "w-full h-40" : "w-20 h-20"
+                          )}>
+                            {booking.workspace.image_url ? (
+                              <img
+                                src={booking.workspace.image_url}
+                                alt={booking.workspace.name}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center">
+                                <MapPin className="w-8 h-8 text-muted-foreground" />
+                              </div>
+                            )}
                           </div>
-                          <p className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
-                            <MapPin className="w-3 h-3" />
-                            {booking.workspace.location}
-                          </p>
-                          <div className="flex items-center gap-4 mt-2 text-sm">
-                            <span className="flex items-center gap-1 text-muted-foreground">
-                              <Clock className="w-3 h-3" />
-                              {format(new Date(booking.start_date), "MMM d")} - {format(new Date(booking.end_date), "MMM d, yyyy")}
-                            </span>
-                          </div>
-                          <div className="flex items-center justify-between mt-3">
-                            <p className="text-sm font-medium">
-                              ₹{booking.total_amount.toLocaleString()}
+                          
+                          {/* Content */}
+                          <div className="flex-1 min-w-0 space-y-2">
+                            <div className="flex items-start justify-between gap-2">
+                              <h4 className="font-semibold text-base">{booking.workspace.name}</h4>
+                              <span className={`px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap ${getStatusColor(booking.status)}`}>
+                                {booking.status}
+                              </span>
+                            </div>
+                            
+                            <p className="text-sm text-muted-foreground flex items-center gap-1.5">
+                              <MapPin className="w-4 h-4 flex-shrink-0" />
+                              <span className="truncate">{booking.workspace.location}</span>
                             </p>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="text-primary border-primary hover:bg-primary hover:text-primary-foreground"
-                              onClick={() => {
-                                setSelectedBooking(booking);
-                                setBookingDetailsOpen(true);
-                              }}
-                            >
-                              <Eye className="w-4 h-4 mr-1" />
-                              View Details
-                            </Button>
+                            
+                            <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                              <Clock className="w-4 h-4 flex-shrink-0" />
+                              <span>{format(new Date(booking.start_date), "MMM d")} - {format(new Date(booking.end_date), "MMM d, yyyy")}</span>
+                            </div>
+                            
+                            <div className="flex items-center justify-between pt-2 border-t border-border/50">
+                              <p className="text-base font-semibold">
+                                ₹{booking.total_amount.toLocaleString()}
+                              </p>
+                              <div className={cn("flex gap-2", isMobile && "flex-wrap justify-end")}>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="text-primary border-primary hover:bg-primary hover:text-primary-foreground"
+                                  onClick={() => {
+                                    setSelectedBooking(booking);
+                                    setBookingDetailsOpen(true);
+                                  }}
+                                >
+                                  <Eye className="w-4 h-4 mr-1" />
+                                  View
+                                </Button>
+                                {showRenew && (
+                                  <Button
+                                    size="sm"
+                                    onClick={() => handleRenewBooking(booking)}
+                                    className="bg-primary hover:bg-primary/90"
+                                  >
+                                    <RefreshCw className="w-4 h-4 mr-1" />
+                                    Renew
+                                  </Button>
+                                )}
+                              </div>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
               </CardContent>
