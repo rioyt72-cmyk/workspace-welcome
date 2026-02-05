@@ -13,6 +13,10 @@ import Profile from "./pages/Profile";
 import Settings from "./pages/Settings";
 import Enterprise from "./pages/Enterprise";
 import ShareRequirement from "./pages/ShareRequirement";
+import AboutUs from "./pages/AboutUs";
+import ContactUs from "./pages/ContactUs";
+import Blogs from "./pages/Blogs";
+import TermsAndPolicy from "./pages/TermsAndPolicy";
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
 import ServiceType from "./pages/ServiceType";
@@ -39,6 +43,10 @@ const App = () => (
                 <Route path="/settings" element={<Settings />} />
                 <Route path="/enterprise" element={<Enterprise />} />
                 <Route path="/share-requirement" element={<ShareRequirement />} />
+                <Route path="/about-us" element={<AboutUs />} />
+                <Route path="/contact-us" element={<ContactUs />} />
+                <Route path="/blogs" element={<Blogs />} />
+                <Route path="/terms-and-policy" element={<TermsAndPolicy />} />
                 <Route path="/services/:type" element={<ServiceType />} />
                 <Route path="/workspace/:id" element={<WorkspaceDetail />} />
                 <Route path="/directory" element={<CompanyDirectory />} />

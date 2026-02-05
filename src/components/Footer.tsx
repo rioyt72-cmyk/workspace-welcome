@@ -3,12 +3,11 @@ import { useNavigate } from "react-router-dom";
 import aztechLogo from "@/assets/aztech-logo.png";
 
 const quickLinks = [
-  { name: "About Us", href: "#" },
-  { name: "Contact Us", href: "#contact" },
-  { name: "Share Requirement", href: "#" },
-  { name: "Add Workspace", href: "#" },
-  { name: "Blogs", href: "#" },
-  { name: "Terms and Policy", href: "#" },
+  { name: "About Us", href: "/about-us" },
+  { name: "Contact Us", href: "/contact-us" },
+  { name: "Share Requirement", href: "/share-requirement" },
+  { name: "Blogs", href: "/blogs" },
+  { name: "Terms and Policy", href: "/terms-and-policy" },
 ];
 
 const workspaceTypes = [
@@ -74,12 +73,12 @@ export const Footer = () => {
             <ul className="space-y-3">
               {quickLinks.map((link) => (
                 <li key={link.name}>
-                  <a 
-                    href={link.href} 
-                    className="text-sm text-primary-foreground/70 hover:text-primary transition-colors"
+                  <button 
+                    onClick={() => navigate(link.href)}
+                    className="text-sm text-primary-foreground/70 hover:text-primary transition-colors text-left"
                   >
                     {link.name}
-                  </a>
+                  </button>
                 </li>
               ))}
             </ul>
