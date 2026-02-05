@@ -267,7 +267,7 @@ export const WorkspaceCard = ({ workspace, onViewDetails, onBook, isSaved, onTog
             className="rounded-full border-foreground text-foreground hover:bg-foreground hover:text-background px-6"
             onClick={handleViewDetails}
           >
-            Get Quote
+            View Details
             <ArrowRight className="w-4 h-4 ml-1" />
           </Button>
         </div>
