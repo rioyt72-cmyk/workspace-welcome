@@ -18,7 +18,7 @@ const services = [
 ];
 
 // Pages that have light backgrounds (no dark hero image)
-const lightBackgroundPages = ["/calq", "/profile", "/settings", "/enterprise", "/share-requirement", "/directory", "/special-offers"];
+const lightBackgroundPages = ["/calq", "/profile", "/settings", "/enterprise", "/share-requirement", "/directory", "/special-offers", "/about-us", "/contact-us", "/blogs", "/terms-and-policy"];
 
 // Check if current path matches dynamic routes with light backgrounds
 const isLightBackgroundRoute = (pathname: string) => {
@@ -28,9 +28,16 @@ const isLightBackgroundRoute = (pathname: string) => {
   return false;
 };
 
+const moreLinks = [
+  { name: "Special Offers", href: "/special-offers" },
+  { name: "Calq", href: "/calq" },
+  { name: "Blogs", href: "/blogs" },
+];
+
 export const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isServicesOpen, setIsServicesOpen] = useState(false);
+  const [isMoreOpen, setIsMoreOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const { user, isLoading } = useAuth();
@@ -111,6 +118,10 @@ export const Header = () => {
                 )}
               </AnimatePresence>
             </div>
+
+            <a href="/about-us" className={`font-medium transition-colors ${shouldUseDarkText ? "text-foreground hover:text-primary" : "text-white/90 hover:text-white"}`}>
+              About Us
+            </a>
             
             <a href="/enterprise" className={`font-medium transition-colors ${shouldUseDarkText ? "text-foreground hover:text-primary" : "text-white/90 hover:text-white"}`}>
               Enterprise Solutions
@@ -118,12 +129,42 @@ export const Header = () => {
             <a href="/share-requirement" className={`font-medium transition-colors ${shouldUseDarkText ? "text-foreground hover:text-primary" : "text-white/90 hover:text-white"}`}>
               Share Requirement
             </a>
-            <a href="/special-offers" className={`font-medium transition-colors ${shouldUseDarkText ? "text-foreground hover:text-primary" : "text-white/90 hover:text-white"}`}>
-              Offers
-            </a>
-            <a href="/calq" className={`font-medium transition-colors ${shouldUseDarkText ? "text-foreground hover:text-primary" : "text-white/90 hover:text-white"}`}>
-              Calq
-            </a>
+
+            {/* More Dropdown */}
+            <div 
+              className="relative"
+              onMouseEnter={() => setIsMoreOpen(true)}
+              onMouseLeave={() => setIsMoreOpen(false)}
+            >
+              <button className={`flex items-center gap-1.5 font-medium transition-colors ${shouldUseDarkText ? "text-foreground hover:text-primary" : "text-white/90 hover:text-white"}`}>
+                More
+                <ChevronDown className={`w-4 h-4 transition-transform ${isMoreOpen ? 'rotate-180' : ''}`} />
+              </button>
+              
+              <AnimatePresence>
+                {isMoreOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 10 }}
+                    className="absolute top-full right-0 pt-4"
+                  >
+                    <div className="bg-card rounded-xl shadow-card-hover border border-border p-2 min-w-[180px]">
+                      {moreLinks.map((link) => (
+                        <a
+                          key={link.name}
+                          href={link.href}
+                          className="block px-4 py-3 rounded-lg text-foreground hover:bg-accent hover:text-primary transition-colors font-medium"
+                          onClick={() => setIsMoreOpen(false)}
+                        >
+                          {link.name}
+                        </a>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
           </nav>
 
           {/* Right Side Actions */}
