@@ -116,15 +116,15 @@ export const EnquiryModal = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto p-0">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto p-0 overflow-hidden">
         {/* Gradient Top Bar */}
-        <div className="h-2 bg-gradient-to-r from-primary via-primary/80 to-primary/60" />
+        <div className="h-2 bg-gradient-to-r from-primary via-primary/80 to-primary/60 rounded-t-2xl" />
         
-        <div className="grid lg:grid-cols-2 gap-0">
+        <div className="grid lg:grid-cols-2 gap-0 max-h-[calc(90vh-0.5rem)] overflow-y-auto">
           {/* Left Side - Contact Info */}
-          <div className="p-8 bg-background">
+          <div className="p-5 sm:p-8 bg-background">
             <DialogHeader className="text-left mb-6">
-              <DialogTitle className="text-3xl font-bold">
+              <DialogTitle className="text-2xl sm:text-3xl font-bold">
                 Contact <span className="text-primary">Us</span>
               </DialogTitle>
               <p className="text-muted-foreground mt-2">
@@ -155,10 +155,10 @@ export const EnquiryModal = ({
           </div>
 
           {/* Right Side - Form */}
-          <div className="p-8 bg-card border-l">
+          <div className="p-5 sm:p-8 bg-card lg:border-l">
             <form onSubmit={handleSubmit} className="space-y-4">
               {/* Row 1: Full Name + Company */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="full_name">Full Name *</Label>
                   <Input
@@ -181,7 +181,7 @@ export const EnquiryModal = ({
               </div>
 
               {/* Row 2: Email + Phone */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="email">Email *</Label>
                   <Input
@@ -207,7 +207,7 @@ export const EnquiryModal = ({
               </div>
 
               {/* Row 3: Number of Employees + City */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="number_of_employees">Number of Employees</Label>
                   <Select
@@ -247,7 +247,7 @@ export const EnquiryModal = ({
               </div>
 
               {/* Row 4: Workspace Type + Seats */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="workspace_type">Workspace Type</Label>
                   <Select
