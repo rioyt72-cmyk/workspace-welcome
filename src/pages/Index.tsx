@@ -143,7 +143,7 @@ const Index = () => {
           <NearbyLocations onViewDetails={handleViewDetails} />
           <SpecialOffers />
           
-           <div ref={workspacesSectionRef} id="workspaces">
+          <div ref={workspacesSectionRef} id="workspaces">
             <WorkspacesSection 
               onLoginRequired={() => setAuthModalOpen(true)} 
               filters={searchFilters}
@@ -151,7 +151,9 @@ const Index = () => {
           </div>
           <MobileFAQ />
         </main>
-        {/* Mobile bottom nav is rendered globally in App */}
+        
+        {/* Mobile Footer */}
+        <Footer />
 
         <WorkspaceDetailsModal
           workspace={selectedWorkspace}
