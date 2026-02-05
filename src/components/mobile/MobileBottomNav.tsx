@@ -5,11 +5,11 @@ import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 
 const navItems = [
-  { icon: Home, label: "Home", path: "/", requiresAuth: false },
-  { icon: Search, label: "Search", path: "/?scroll=workspaces", requiresAuth: false },
-  { icon: Calendar, label: "Bookings", path: "/profile?tab=bookings", requiresAuth: true },
-  { icon: Heart, label: "Saved", path: "/profile?tab=saved", requiresAuth: true },
-  { icon: User, label: "Profile", path: "/profile", requiresAuth: false },
+  { icon: Home, label: "Home", path: "/", requiresAuth: false, action: "navigate" },
+  { icon: Search, label: "Search", path: "/", requiresAuth: false, action: "search" },
+  { icon: Calendar, label: "Bookings", path: "/profile?tab=bookings", requiresAuth: true, action: "navigate" },
+  { icon: Heart, label: "Saved", path: "/profile?tab=saved", requiresAuth: true, action: "navigate" },
+  { icon: User, label: "Profile", path: "/profile", requiresAuth: false, action: "navigate" },
 ];
 
 interface MobileBottomNavProps {
@@ -21,8 +21,11 @@ export const MobileBottomNav = ({ onLoginRequired }: MobileBottomNavProps) => {
   const location = useLocation();
   const { user } = useAuth();
 
-  const isActive = (path: string) => {
-    if (path === "/") return location.pathname === "/";
+  const isActive = (item: typeof navItems[0]) => {
+    if (item.action === "search") return false; // Search is never "active" visually
+    
+    const path = item.path;
+    if (path === "/") return location.pathname === "/" && !location.search;
 
     const [base, query] = path.split("?");
     if (!location.pathname.startsWith(base)) return false;
@@ -42,6 +45,16 @@ export const MobileBottomNav = ({ onLoginRequired }: MobileBottomNavProps) => {
     return true;
   };
 
+  const scrollToWorkspaces = () => {
+    const workspacesSection = document.getElementById("workspaces");
+    if (workspacesSection) {
+      workspacesSection.scrollIntoView({ behavior: "smooth" });
+    } else {
+      // If not on home page, navigate first then scroll
+      navigate("/?scroll=workspaces");
+    }
+  };
+
   const handleNavClick = (item: typeof navItems[0]) => {
     if (item.requiresAuth && !user) {
       toast.error("Please login to access this feature");
@@ -50,6 +63,16 @@ export const MobileBottomNav = ({ onLoginRequired }: MobileBottomNavProps) => {
       }
       return;
     }
+
+    if (item.action === "search") {
+      if (location.pathname === "/") {
+        scrollToWorkspaces();
+      } else {
+        navigate("/?scroll=workspaces");
+      }
+      return;
+    }
+
     navigate(item.path);
   };
 
@@ -57,7 +80,7 @@ export const MobileBottomNav = ({ onLoginRequired }: MobileBottomNavProps) => {
     <nav className="fixed bottom-0 left-0 right-0 z-50 bg-card border-t border-border shadow-lg md:hidden">
       <div className="flex items-center justify-around py-2 px-4 safe-area-pb">
         {navItems.map((item) => {
-          const active = isActive(item.path);
+          const active = isActive(item);
           return (
             <button
               key={item.label}
