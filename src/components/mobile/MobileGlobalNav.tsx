@@ -1,7 +1,8 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { MobileBottomNav } from "@/components/mobile/MobileBottomNav";
+import { AuthModal } from "@/components/AuthModal";
 
 /**
  * Renders the 5-icon mobile bottom nav across pages.
@@ -10,6 +11,7 @@ import { MobileBottomNav } from "@/components/mobile/MobileBottomNav";
 export const MobileGlobalNav = () => {
   const isMobile = useIsMobile();
   const location = useLocation();
+  const [authModalOpen, setAuthModalOpen] = useState(false);
 
   const shouldShow = useMemo(() => {
     if (!isMobile) return false;
@@ -19,5 +21,10 @@ export const MobileGlobalNav = () => {
 
   if (!shouldShow) return null;
 
-  return <MobileBottomNav />;
+  return (
+    <>
+      <MobileBottomNav onLoginRequired={() => setAuthModalOpen(true)} />
+      <AuthModal isOpen={authModalOpen} onClose={() => setAuthModalOpen(false)} />
+    </>
+  );
 };
